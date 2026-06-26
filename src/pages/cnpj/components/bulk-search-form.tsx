@@ -1,0 +1,188 @@
+import { useRef, useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { FileSpreadsheet, Loader2, Upload, X } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { bulkSearchCNPJ } from "@/lib/api/cnpj"
+
+import type { CnpjBulkFile } from "../types"
+import {
+  BULK_SEARCH_ACCEPT,
+  bulkSearchSchema,
+  type BulkSearchInput,
+  type BulkSearchValues,
+} from "../schemas"
+
+type BulkSearchFormProps = {
+  onUploadSuccess?: (file: CnpjBulkFile) => void
+}
+
+export function BulkSearchForm({ onUploadSuccess }: BulkSearchFormProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [open, setOpen] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const {
+    handleSubmit,
+    watch,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<BulkSearchInput, unknown, BulkSearchValues>({
+    resolver: zodResolver(bulkSearchSchema),
+  })
+
+  const selectedFile = watch("file")
+
+  function resetForm() {
+    reset()
+    setUploadError(null)
+    if (inputRef.current) {
+      inputRef.current.value = ""
+    }
+  }
+
+  function handleOpenChange(value: boolean) {
+    setOpen(value)
+    if (!value) {
+      resetForm()
+    }
+  }
+
+  async function onSubmit({ file }: BulkSearchValues) {
+    setUploadError(null)
+
+    const success = await bulkSearchCNPJ(file)
+
+    if (!success) {
+      setUploadError("Não foi possível enviar o arquivo. Tente novamente.")
+      return
+    }
+
+    onUploadSuccess?.({
+      id: crypto.randomUUID(),
+      fileName: file.name,
+      sizeMb: file.size / (1024 * 1024),
+      consultas: 0,
+      enderecos: 0,
+      validos: 0,
+      invalidos: 0,
+      createdAt: new Date(),
+    })
+
+    handleOpenChange(false)
+  }
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    setValue("file", file as File, { shouldValidate: true })
+    setUploadError(null)
+  }
+
+  function handleClearFile() {
+    resetForm()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button type="button" className="mt-6 w-fit cursor-pointer">
+          <Upload />
+          Enviar planilha
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent className="pt-6 sm:max-w-md">
+        <DialogHeader className="pb-4 border-b">
+          <DialogTitle className="text-[20px]">Enviar planilha</DialogTitle>
+          <DialogDescription>
+            Selecione um arquivo .csv ou .xlsx com a lista de CNPJs para consulta em massa.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-2 mt-4 mb-8">
+            <Label htmlFor="bulk-file">Planilha</Label>
+
+            <div className="flex items-center gap-2">
+              <Input
+                id="bulk-file"
+                name="file"
+                ref={inputRef}
+                type="file"
+                accept={BULK_SEARCH_ACCEPT}
+                aria-invalid={Boolean(errors.file)}
+                className="cursor-pointer file:mr-3 file:cursor-pointer"
+                onChange={handleFileChange} />
+
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                className="cursor-pointer"
+                disabled={!(selectedFile instanceof File) || isSubmitting}
+                aria-label="Limpar arquivo selecionado"
+                onClick={handleClearFile}>
+                <X />
+              </Button>
+            </div>
+
+            <p className={selectedFile instanceof File ? "flex items-center gap-2 text-xs text-foreground"
+              : "text-xs text-muted-foreground"}>
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="size-3.5 shrink-0" />
+                <span className="truncate my-1">
+                  {selectedFile instanceof File ? selectedFile.name : "Nenhum arquivo selecionado"}
+                </span>
+              </div>
+            </p>
+
+            {errors.file && (
+              <p className="text-sm text-destructive">{errors.file.message}</p>
+            )}
+            {uploadError && (
+              <p className="text-sm text-destructive">{uploadError}</p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="cursor-pointer"
+              disabled={isSubmitting}
+              onClick={() => handleOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              className="cursor-pointer"
+              disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                "Enviar"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
