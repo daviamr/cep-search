@@ -29,9 +29,29 @@ export type CEPBulkFile = {
   downloaded_at?: string
 }
 
-export async function simpleSearchCEP(CEP: string): Promise<CEPAddressRecord[] | null> {
+type SimpleSearchCEPOptions = {
+  numero?: string
+  complemento?: string
+}
+
+export async function simpleSearchCEP(
+  CEP: string,
+  options?: SimpleSearchCEPOptions
+): Promise<CEPAddressRecord[] | null> {
   try {
-    const response = await api.get<CEPAddressRecord[]>(`/enderecos/${CEP}`)
+    const params: Record<string, string> = {}
+
+    if (options?.numero?.trim()) {
+      params.numero = options.numero.trim()
+    }
+
+    if (options?.complemento?.trim()) {
+      params.complemento = options.complemento.trim()
+    }
+
+    const response = await api.get<CEPAddressRecord[]>(`/enderecos/${CEP}`, {
+      params,
+    })
     return response.data
   } catch (error) {
     console.error(error)

@@ -17,6 +17,8 @@ export const simpleSearchSchema = z.object({
     .min(1, "Informe um CEP")
     .transform(stripNonDigits)
     .pipe(z.string().length(8, "CEP deve conter 8 dígitos")),
+  numero: z.string().optional(),
+  complemento: z.string().optional(),
 })
 
 export const bulkSearchSchema = z.object({

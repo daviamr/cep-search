@@ -28,16 +28,16 @@ export function SimpleSearchForm() {
     formState: { errors, isSubmitting },
   } = useForm<SimpleSearchInput, unknown, SimpleSearchValues>({
     resolver: zodResolver(simpleSearchSchema),
-    defaultValues: { cep: "" },
+    defaultValues: { cep: "", numero: "", complemento: "" },
   })
 
-  async function onSubmit({ cep }: SimpleSearchValues) {
+  async function onSubmit({ cep, numero, complemento }: SimpleSearchValues) {
     setSearchError(null)
     setAddresses([])
     setIsLoadingAddresses(true)
 
     try {
-      const data = await simpleSearchCEP(cep)
+      const data = await simpleSearchCEP(cep, { numero, complemento })
 
       if (!data || !Array.isArray(data) || data.length === 0) {
         setSearchError("Nenhum resultado encontrado para este CEP.")
@@ -56,19 +56,41 @@ export function SimpleSearchForm() {
   return (
     <div className="mt-6 space-y-4">
       <form className="flex max-w-md flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-        <div className="space-y-2">
-          <Label htmlFor="cep">CEP</Label>
-          <Input
-            id="cep"
-            type="text"
-            inputMode="numeric"
-            placeholder="00000-000"
-            aria-invalid={Boolean(errors.cep)}
-            {...register("cep")}
-          />
-          {errors.cep && (
-            <p className="text-sm text-destructive">{errors.cep.message}</p>
-          )}
+        <div className="flex items-baseline gap-2">
+          <div className="space-y-2">
+            <Label htmlFor="cep">CEP</Label>
+            <Input
+              id="cep"
+              type="text"
+              inputMode="numeric"
+              placeholder="00000-000"
+              aria-invalid={Boolean(errors.cep)}
+              {...register("cep")}
+            />
+            {errors.cep && (
+              <p className="text-sm text-destructive">{errors.cep.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="numero">Número</Label>
+            <Input
+              id="numero"
+              type="text"
+              placeholder="Ex.: 123"
+              {...register("numero")}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="complemento">Complemento</Label>
+            <Input
+              id="complemento"
+              type="text"
+              placeholder="Ex.: Apto 101"
+              {...register("complemento")}
+            />
+          </div>
         </div>
 
         <Button type="submit" disabled={isSubmitting || isLoadingAddresses} className="w-fit">
