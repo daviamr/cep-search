@@ -2,6 +2,8 @@ import { useState } from "react"
 import { Download, Eye, Loader2, Trash2 } from "lucide-react"
 import { Link } from "react-router-dom"
 
+import { HoverCard } from "@/components/hover-card"
+import { QueryEmptyState } from "@/components/query-empty-state"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -29,7 +31,11 @@ type BulkFilesTableProps = {
   onRemove: (id: string) => void | Promise<void>
 }
 
-export function BulkFilesTable({ files, onDownload, onRemove }: BulkFilesTableProps) {
+export function BulkFilesTable({
+  files,
+  onDownload,
+  onRemove,
+}: BulkFilesTableProps) {
   const [fileToDelete, setFileToDelete] = useState<CnpjBulkFile | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [removingId, setRemovingId] = useState<string | null>(null)
@@ -57,18 +63,20 @@ export function BulkFilesTable({ files, onDownload, onRemove }: BulkFilesTablePr
 
   if (files.length === 0) {
     return (
-      <p className="mt-6 text-sm text-muted-foreground">
-        Nenhuma planilha analisada ainda.
-      </p>
+      <QueryEmptyState
+        variant="initial"
+        title="Nenhuma consulta realizada"
+        description="Envie uma planilha com CNPJs para começar o processamento em massa."
+      />
     )
   }
 
   return (
     <>
-      <div className="rounded-lg border">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-muted/30">
               <TableHead>Arquivo</TableHead>
               <TableHead>MB</TableHead>
               <TableHead>Consultas</TableHead>
@@ -76,14 +84,16 @@ export function BulkFilesTable({ files, onDownload, onRemove }: BulkFilesTablePr
               <TableHead>Válidos</TableHead>
               <TableHead>Inválidos</TableHead>
               <TableHead>Data/Hora</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="sr-only text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {files.map((file) => (
               <TableRow key={file.id}>
-                <TableCell>{file.fileName}</TableCell>
-                <TableCell className="tabular-nums">
+                <TableCell className="max-w-[240px] truncate font-medium">
+                  {file.fileName}
+                </TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">
                   {formatSizeMb(file.sizeMb)}
                 </TableCell>
                 <TableCell className="tabular-nums">
@@ -98,44 +108,53 @@ export function BulkFilesTable({ files, onDownload, onRemove }: BulkFilesTablePr
                 <TableCell className="tabular-nums">
                   {formatNumber(file.invalidos)}
                 </TableCell>
-                <TableCell>{formatDateAndHours(file.createdAt)}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">
+                  {formatDateAndHours(file.createdAt)}
+                </TableCell>
                 <TableCell>
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="cursor-pointer"
-                      size="icon"
-                      aria-label={`Baixar arquivo ${file.fileName}`}
-                      disabled={downloadingId === file.id}
-                      onClick={() => handleDownload(file)}>
-                      {downloadingId === file.id ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <Download />
-                      )}
-                    </Button>
+                  <div className="flex items-center justify-end gap-1">
+                    <HoverCard content="Baixar" side="top" closeDelay={0.5} openDelay={0.5}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={`Baixar arquivo ${file.fileName}`}
+                        disabled={downloadingId === file.id}
+                        onClick={() => handleDownload(file)}
+                      >
+                        {downloadingId === file.id ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <Download className="size-4" />
+                        )}
+                      </Button>
+                    </HoverCard>
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      aria-label={`Visualizar resultados de ${file.fileName}`}
-                      asChild>
-                      <Link to={`/cnpj/${file.id}`}>
-                        <Eye />
-                      </Link>
-                    </Button>
+                    <HoverCard content="Visualizar" side="top" closeDelay={0.5} openDelay={0.5}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={`Visualizar resultados de ${file.fileName}`}
+                        asChild
+                      >
+                        <Link to={`/cnpj/${file.id}`}>
+                          <Eye className="size-4" />
+                        </Link>
+                      </Button>
+                    </HoverCard>
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="cursor-pointer"
-                      size="icon"
-                      aria-label={`Excluir arquivo ${file.fileName}`}
-                      onClick={() => setFileToDelete(file)}>
-                      <Trash2 />
-                    </Button>
+                    <HoverCard content="Excluir" side="top" closeDelay={0.5} openDelay={0.5}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={`Excluir arquivo ${file.fileName}`}
+                        onClick={() => setFileToDelete(file)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </HoverCard>
                   </div>
                 </TableCell>
               </TableRow>
@@ -154,7 +173,8 @@ export function BulkFilesTable({ files, onDownload, onRemove }: BulkFilesTablePr
           <DialogHeader>
             <DialogTitle>Excluir planilha</DialogTitle>
             <DialogDescription>
-              Deseja excluir &quot;{fileToDelete?.fileName}&quot;? Esta ação não pode ser desfeita.
+              Deseja excluir &quot;{fileToDelete?.fileName}&quot;? Esta ação não
+              pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
 

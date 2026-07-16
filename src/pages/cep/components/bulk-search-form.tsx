@@ -87,17 +87,17 @@ export function BulkSearchForm({ onUploadSuccess }: BulkSearchFormProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button type="button" className="mt-6 w-fit cursor-pointer">
-          <Upload />
-          Enviar planilha
+        <Button type="button" size="sm" className="cursor-pointer">
+          <Upload className="size-4" />
+          Novo arquivo
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="pt-6 sm:max-w-md">
-        <DialogHeader className="border-b pb-4">
-          <DialogTitle className="text-[20px]">Enviar planilha</DialogTitle>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Nova consulta de CEPs</DialogTitle>
           <DialogDescription>
-            Selecione um arquivo .csv ou .xlsx com a lista de CEPs para consulta em massa.
+            Envie um arquivo .csv ou .xlsx com a lista de CEPs para consulta.
           </DialogDescription>
         </DialogHeader>
 

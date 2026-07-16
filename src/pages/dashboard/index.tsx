@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react"
 
 import { DefaultLayout } from "@/components/layout/default-layout/DefaultLayout"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb"
 
 import { DashboardKpiCards } from "./components/dashboard-kpi-cards"
 import { RecentSearchesTable } from "./components/recent-searches-table"
@@ -39,9 +45,16 @@ export function DashboardPage() {
   }, [])
 
   return (
-    <DefaultLayout className="my-16 space-y-8">
-      <div>
-        <h1 className="mb-1 text-2xl font-bold">Dashboard</h1>
+    <DefaultLayout>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div className="space-y-1">
         <p className="text-sm text-muted-foreground">
           Visão geral das consultas por CNPJ, CPF e CEP.
         </p>

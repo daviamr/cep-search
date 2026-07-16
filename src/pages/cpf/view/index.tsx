@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react"
-import { Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import { Link, useParams } from "react-router-dom"
 
 import { DefaultLayout } from "@/components/layout/default-layout/DefaultLayout"
-import { Button } from "@/components/ui/button"
 import {
-  downloadFileCPF,
-  getFileCPFById,
-} from "@/lib/api/cpf"
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Button } from "@/components/ui/button"
+import { downloadFileCPF, getFileCPFById } from "@/lib/api/cpf"
 import { parseSpreadsheetBlob } from "@/lib/utils/parse-spreadsheet"
 
 import { AddressResultsTable } from "../components/address-results-table"
@@ -70,8 +75,8 @@ export function CPFFileViewPage() {
 
   if (pageState === "loading") {
     return (
-      <DefaultLayout className="my-16">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <DefaultLayout>
+        <div className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-border/80 bg-muted/20 px-6 py-12 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
           Carregando planilha...
         </div>
@@ -81,14 +86,19 @@ export function CPFFileViewPage() {
 
   if (pageState === "not_found") {
     return (
-      <DefaultLayout className="my-16">
+      <DefaultLayout>
         <div className="space-y-4">
-          <h1 className="text-2xl font-bold">Arquivo não encontrado</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Arquivo não encontrado
+          </h1>
           <p className="text-sm text-muted-foreground">
             O arquivo solicitado não existe ou foi removido.
           </p>
-          <Button variant="outline" asChild>
-            <Link to="/cpf">Voltar</Link>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/cpf">
+              <ArrowLeft className="size-4" />
+              Voltar para CPF
+            </Link>
           </Button>
         </div>
       </DefaultLayout>
@@ -97,14 +107,20 @@ export function CPFFileViewPage() {
 
   if (pageState === "error") {
     return (
-      <DefaultLayout className="my-16">
+      <DefaultLayout>
         <div className="space-y-4">
-          <h1 className="text-2xl font-bold">Erro ao carregar planilha</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Erro ao carregar resultados
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Não foi possível baixar ou processar o arquivo. Tente novamente mais tarde.
+            Não foi possível baixar ou processar o arquivo. Tente novamente mais
+            tarde.
           </p>
-          <Button variant="outline" asChild>
-            <Link to="/cpf">Voltar</Link>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/cpf">
+              <ArrowLeft className="size-4" />
+              Voltar para CPF
+            </Link>
           </Button>
         </div>
       </DefaultLayout>
@@ -112,18 +128,42 @@ export function CPFFileViewPage() {
   }
 
   return (
-    <DefaultLayout className="my-16">
-      <div className="mb-8 flex items-center justify-between gap-4">
-        <div>
-          <h1 className="mb-1 text-2xl font-bold">Resultados da planilha</h1>
-          <p className="text-sm text-muted-foreground">
-            Endereços encontrados em{" "}
-            <span className="font-medium text-foreground">{fileName}</span>
-          </p>
-        </div>
-        <Button variant="outline" asChild>
-          <Link to="/cpf">Voltar</Link>
+    <DefaultLayout>
+      <div className="flex items-center justify-between">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Dashboard</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/cpf">Busca por CPF</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{fileName || "Resultados"}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/cpf">
+            <ArrowLeft className="size-4" />
+            Voltar para CPF
+          </Link>
         </Button>
+      </div>
+
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Resultados</h1>
+        <p className="text-sm text-muted-foreground">
+          Endereços encontrados em{" "}
+          <span className="font-medium text-foreground">{fileName}</span>
+        </p>
       </div>
 
       <AddressResultsTable

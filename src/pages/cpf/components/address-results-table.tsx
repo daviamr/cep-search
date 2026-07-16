@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react"
 
+import { QueryEmptyState } from "@/components/query-empty-state"
 import {
   Table,
   TableBody,
@@ -24,7 +25,7 @@ export function AddressResultsTable({
 }: AddressResultsTableProps) {
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-border/80 bg-muted/20 px-6 py-12 text-sm text-muted-foreground">
         <Loader2 className="size-4 animate-spin" />
         Carregando endereços...
       </div>
@@ -33,17 +34,19 @@ export function AddressResultsTable({
 
   if (addresses.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        Nenhum endereço encontrado.
-      </p>
+      <QueryEmptyState
+        variant="empty"
+        title="Nenhum endereço encontrado"
+        description="Não há endereços para exibir neste resultado."
+      />
     )
   }
 
   return (
-    <div className="rounded-lg border">
+    <div className="overflow-x-auto rounded-md border">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="bg-muted/30">
             {showCpf && <TableHead>CPF</TableHead>}
             <TableHead>CEP</TableHead>
             <TableHead>Logradouro</TableHead>
@@ -59,16 +62,28 @@ export function AddressResultsTable({
           {addresses.map((address) => (
             <TableRow key={address.id}>
               {showCpf && (
-                <TableCell className="font-mono">{address.cpf}</TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">
+                  {address.cpf}
+                </TableCell>
               )}
-              <TableCell className="font-mono">{address.cep}</TableCell>
+              <TableCell className="font-mono text-xs text-muted-foreground">
+                {address.cep}
+              </TableCell>
               <TableCell>{address.logradouro}</TableCell>
-              <TableCell>{address.numero}</TableCell>
-              <TableCell>{address.complemento}</TableCell>
-              <TableCell>{address.bairro}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {address.numero}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {address.complemento}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {address.bairro}
+              </TableCell>
               <TableCell>{address.cidade}</TableCell>
-              <TableCell>{address.estado}</TableCell>
-              <TableCell>{address.uf}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {address.estado}
+              </TableCell>
+              <TableCell className="text-muted-foreground">{address.uf}</TableCell>
             </TableRow>
           ))}
         </TableBody>

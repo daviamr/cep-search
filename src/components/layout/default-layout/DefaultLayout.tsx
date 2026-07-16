@@ -1,6 +1,14 @@
-export function DefaultLayout({ children, className }: { children: React.ReactNode, className?: string }) {
+import { cn } from "@/lib/utils"
+
+export function DefaultLayout({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
   return (
-    <div className={`container mx-auto px-4 ${className}`}>
+    <div className={cn("container mx-auto space-y-6 p-6", className)}>
       {children}
     </div>
   )

@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 
 import { DefaultLayout } from "@/components/layout/default-layout/DefaultLayout"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Separator } from "@/components/ui/separator"
 import {
   downloadFileCPF,
   getFilesCPF,
@@ -48,39 +58,52 @@ export function CPFPage() {
   }
 
   return (
-    <DefaultLayout className="my-16">
-      <div className="mb-8">
-        <h1 className="mb-1 text-2xl font-bold">Busca por CPF</h1>
+    <DefaultLayout>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Dashboard</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Busca por CPF</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Busca por CPF</h1>
         <p className="text-sm text-muted-foreground">
           Consulte um CPF individualmente ou envie uma planilha com vários CPFs.
         </p>
       </div>
 
-      <section className="border-t pt-8">
-        <h2 className="mb-1 text-[20px] font-bold">Consulta simples</h2>
-        <p className="text-sm text-muted-foreground">
-          Consulte um CPF e visualize os endereços vinculados à pessoa.
-        </p>
-        <SimpleSearchForm />
-      </section>
+      <SimpleSearchForm />
 
-      <section className="mt-10 border-t pt-8">
-        <h2 className="mb-1 text-[20px] font-bold">Consulta em massa</h2>
-        <p className="text-sm text-muted-foreground">
-          Envie uma planilha (.csv ou .xlsx) com vários CPFs para processamento.
-        </p>
+      <Separator />
 
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-end">
-            <BulkSearchForm onUploadSuccess={loadFiles} />
-          </div>
-          <BulkFilesTable
-            files={files}
-            isLoading={isLoadingFiles}
-            onDownload={handleDownload}
-            onRemove={handleRemove}
-          />
+      <section className="space-y-4">
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold tracking-tight">
+            Consulta em massa
+          </h2>
+          <p className="max-w-3xl text-sm text-muted-foreground">
+            Envie uma planilha (.csv ou .xlsx) com vários CPFs para processamento.
+          </p>
         </div>
+
+        <div className="flex justify-end">
+          <BulkSearchForm onUploadSuccess={loadFiles} />
+        </div>
+
+        <BulkFilesTable
+          files={files}
+          isLoading={isLoadingFiles}
+          onDownload={handleDownload}
+          onRemove={handleRemove}
+        />
       </section>
     </DefaultLayout>
   )

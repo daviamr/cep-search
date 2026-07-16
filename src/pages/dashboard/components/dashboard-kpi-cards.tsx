@@ -1,13 +1,9 @@
 import { Building2, FileSpreadsheet, IdCard, Map, Search } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatNumber } from "@/lib/format"
+import { cn } from "@/lib/utils"
 
 import type { DashboardStats } from "../types"
 
@@ -15,24 +11,40 @@ type DashboardKpiCardsProps = {
   stats: DashboardStats
 }
 
-type KpiCardProps = {
+type StatCardProps = {
   title: string
-  value: string | number
+  value: string
   description: string
-  icon: React.ReactNode
+  icon: LucideIcon
+  iconClassName?: string
 }
 
-function KpiCard({ title, value, description, icon }: KpiCardProps) {
+function StatCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+  iconClassName,
+}: StatCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardDescription>{title}</CardDescription>
-        <CardAction>
-          <span className="text-muted-foreground">{icon}</span>
-        </CardAction>
+    <Card size="sm">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <div
+          className={cn(
+            "flex size-8 items-center justify-center rounded-lg bg-muted",
+            iconClassName
+          )}
+        >
+          <Icon className="size-4" aria-hidden="true" />
+        </div>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-bold tabular-nums">{value}</p>
+        <p className="text-2xl font-semibold tracking-tight tabular-nums">
+          {value}
+        </p>
         <p className="mt-1 text-xs text-muted-foreground">{description}</p>
       </CardContent>
     </Card>
@@ -41,36 +53,40 @@ function KpiCard({ title, value, description, icon }: KpiCardProps) {
 
 export function DashboardKpiCards({ stats }: DashboardKpiCardsProps) {
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
-      <KpiCard
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <StatCard
         title="Total de consultas"
         value={formatNumber(stats.totalConsultas)}
         description="Registros enviados em planilhas"
-        icon={<Search className="size-4" />}
+        icon={Search}
+        iconClassName="text-primary"
       />
-      <KpiCard
+      <StatCard
         title="Arquivos processados"
         value={formatNumber(stats.arquivosProcessados)}
         description="Planilhas enviadas ao sistema"
-        icon={<FileSpreadsheet className="size-4" />}
+        icon={FileSpreadsheet}
       />
-      <KpiCard
+      <StatCard
         title="Consultas CPF"
         value={formatNumber(stats.consultasCpf)}
         description="Registros em buscas por CPF"
-        icon={<IdCard className="size-4" />}
+        icon={IdCard}
+        iconClassName="text-primary"
       />
-      <KpiCard
+      <StatCard
         title="Consultas CNPJ"
         value={formatNumber(stats.consultasCnpj)}
         description="Registros em buscas por CNPJ"
-        icon={<Building2 className="size-4" />}
+        icon={Building2}
+        iconClassName="text-primary"
       />
-      <KpiCard
+      <StatCard
         title="Consultas CEP"
         value={formatNumber(stats.consultasCep)}
         description="Registros em buscas por CEP"
-        icon={<Map className="size-4" />}
+        icon={Map}
+        iconClassName="text-primary"
       />
     </div>
   )
