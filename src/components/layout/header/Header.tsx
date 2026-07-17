@@ -24,8 +24,7 @@ export function Header() {
             to="/"
             className="flex shrink-0 items-center gap-2 font-bold text-headerbar-foreground"
           >
-            <Map size={18} aria-hidden />
-            CEP Search
+            <img src="/favicon.jpeg" alt="Logo" className="max-w-56" />
           </Link>
 
           <nav>
