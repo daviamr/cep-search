@@ -1,4 +1,4 @@
-import { Bell, Coins, Headset, LayoutDashboard, Map } from "lucide-react"
+import { Bell, Coins, Headset, LayoutDashboard } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { HoverCard } from "@/components/hover-card"
@@ -24,7 +24,7 @@ export function Header() {
             to="/"
             className="flex shrink-0 items-center gap-2 font-bold text-headerbar-foreground"
           >
-            <img src="/favicon.jpeg" alt="Logo" className="max-w-56" />
+            <img src="/buscaendereco.png" alt="Logo" className="max-w-56" />
           </Link>
 
           <nav>
