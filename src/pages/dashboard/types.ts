@@ -1,19 +1,43 @@
-export type SearchType = "CPF" | "CNPJ" | "CEP"
+export type ConsultationType = "cpf" | "cep"
 
-export type RecentSearchFile = {
+export type ConsultationStatus = "completed" | "processing" | "error"
+
+export type RecentConsultation = {
   id: string
-  type: SearchType
+  type: ConsultationType
   fileName: string
-  consultas: number
-  status: string
-  createdAt: string
-  viewPath: string
+  status: ConsultationStatus
+  createdAt: Date
+  canView: boolean
 }
 
-export type DashboardStats = {
-  totalConsultas: number
-  arquivosProcessados: number
+export type DashboardFileStats = {
+  files: number
   consultasCpf: number
-  consultasCnpj: number
   consultasCep: number
+  totalConsultas: number
+}
+
+export function mapConsultationStatus(status: string): ConsultationStatus {
+  const normalized = status.trim().toLowerCase()
+
+  if (
+    normalized === "aguardando" ||
+    normalized === "processando" ||
+    normalized === "processing" ||
+    normalized === "pending"
+  ) {
+    return "processing"
+  }
+
+  if (
+    normalized === "erro" ||
+    normalized === "falhou" ||
+    normalized === "error" ||
+    normalized === "failed"
+  ) {
+    return "error"
+  }
+
+  return "completed"
 }

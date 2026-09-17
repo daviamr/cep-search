@@ -59,7 +59,7 @@ export function Versions() {
         <DialogContent className="sm:max-w-175">
           <DialogHeader className="flex flex-col items-start gap-2">
             <p className="flex items-center gap-2 text-base font-bold">
-              CEP Search
+              Busca Endereço
             </p>
             <div className="mt-2 flex flex-col items-start gap-1">
               <DialogTitle>Novidades</DialogTitle>

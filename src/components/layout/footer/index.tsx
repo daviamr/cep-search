@@ -25,7 +25,7 @@ export function Footer() {
         <div className="absolute left-1/2 flex -translate-x-1/2 transform justify-center">
           <p className="text-center text-xs text-headerbar-muted">
             <strong className="font-semibold text-headerbar-foreground">
-              CEP Search
+              Busca Endereço
             </strong>{" "}
             © {dateNow} Todos os direitos reservados
           </p>

@@ -1,110 +1,65 @@
-import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { CheckCircle, Map } from "lucide-react"
 
-import { DefaultLayout } from "@/components/layout/default-layout/DefaultLayout"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { PageBreadcrumb } from "@/components/page-breadcrumb"
 import { Separator } from "@/components/ui/separator"
-import {
-  downloadFileCEP,
-  getFilesCEP,
-  type CEPBulkFile,
-} from "@/lib/api/cep"
+import { MassSearchSection } from "@/pages/address-search/mass-search-section"
+import { useMassSearchController } from "@/pages/address-search/controller"
 
-import { BulkFilesTable } from "./components/bulk-files-table"
-import { BulkSearchForm } from "./components/bulk-search-form"
-import { SimpleSearchForm } from "./components/simple-search-form"
-
-function saveBlobAsFile(blob: Blob, fileName: string) {
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement("a")
-  link.href = url
-  link.download = fileName
-  link.click()
-  URL.revokeObjectURL(url)
-}
+import { CepSimpleQuery } from "./components/cep-simple-query"
 
 export function CEPPage() {
-  const [files, setFiles] = useState<CEPBulkFile[]>([])
-  const [isLoadingFiles, setIsLoadingFiles] = useState(true)
-
-  async function loadFiles() {
-    setIsLoadingFiles(true)
-    try {
-      const data = await getFilesCEP()
-      setFiles(data)
-    } finally {
-      setIsLoadingFiles(false)
-    }
-  }
-
-  useEffect(() => {
-    void loadFiles()
-  }, [])
-
-  async function handleDownload(file: CEPBulkFile) {
-    const { blob, fileName } = await downloadFileCEP(file.id, file.original_name)
-    saveBlobAsFile(blob, fileName)
-  }
-
-  async function handleRemove(id: string) {
-    setFiles((current) => current.filter((file) => file.id !== id))
-  }
+  const {
+    files,
+    isLoadingFiles,
+    isErrorFiles,
+    uploadFile,
+    isUploadingFile,
+    downloadFile,
+    downloadingFileId,
+    removeFile,
+    removingFileId,
+  } = useMassSearchController("cep")
 
   return (
-    <DefaultLayout>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Busca por CEP</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="container mx-auto space-y-6 p-6">
+      <PageBreadcrumb
+        items={[
+          { label: "Checker", icon: CheckCircle },
+          { label: "Buscar por CEP", icon: Map },
+        ]}
+      />
 
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Busca por CEP</h1>
-        <p className="text-sm text-muted-foreground">
-          Consulte um CEP individualmente ou envie uma planilha com vários CEPs.
-        </p>
-      </div>
-
-      <SimpleSearchForm />
+      <CepSimpleQuery />
 
       <Separator />
 
-      <section className="space-y-4">
-        <div className="space-y-1">
-          <h2 className="text-lg font-semibold tracking-tight">
-            Consulta em massa
-          </h2>
-          <p className="max-w-3xl text-sm text-muted-foreground">
-            Envie uma planilha (.csv ou .xlsx) com vários CEPs para processamento.
-          </p>
-        </div>
-
-        <div className="flex justify-end">
-          <BulkSearchForm onUploadSuccess={loadFiles} />
-        </div>
-
-        <BulkFilesTable
-          files={files}
-          isLoading={isLoadingFiles}
-          onDownload={handleDownload}
-          onRemove={handleRemove}
-        />
-      </section>
-    </DefaultLayout>
+      <MassSearchSection
+        documentType="CEP"
+        viewBasePath="/cep"
+        files={files}
+        isLoadingFiles={isLoadingFiles}
+        isErrorFiles={isErrorFiles}
+        isUploadingFile={isUploadingFile}
+        downloadingFileId={downloadingFileId}
+        removingFileId={removingFileId}
+        exampleFileName="exemplo-ceps.csv"
+        exampleHeader="cep;numero;complemento"
+        exampleRows={[
+          "01001000;;",
+          "20040020;272;",
+          "30130010;100;Apto 101",
+        ]}
+        uploadTitle="Nova consulta de CEPs"
+        uploadDescription="Envie um arquivo .csv (separador ;) ou .xlsx. Pode ter só a coluna CEP, CEP + número, ou CEP + número + complemento."
+        emptyDescription="Envie um arquivo com CEP, CEP + número, ou CEP + número + complemento para acompanhar o processamento dos resultados aqui."
+        onUpload={uploadFile}
+        onDownload={async (fileId, fileName, format) => {
+          await downloadFile({ id: fileId, fileName, format })
+        }}
+        onRemove={async (id) => {
+          await removeFile(String(id))
+        }}
+      />
+    </div>
   )
 }

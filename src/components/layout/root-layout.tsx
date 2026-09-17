@@ -1,11 +1,15 @@
+import { Outlet } from "react-router-dom"
+
 import { Footer } from "@/components/layout/footer"
 import { Header } from "@/components/layout/header/Header"
 
-export function RootLayout({ children }: { children: React.ReactNode }) {
+export function RootLayout() {
   return (
     <div className="flex min-h-dvh flex-col antialiased">
       <Header />
-      <main className="mt-16 flex-1">{children}</main>
+      <main className="mt-16 flex-1">
+        <Outlet />
+      </main>
       <Footer />
     </div>
   )

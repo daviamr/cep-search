@@ -1,110 +1,61 @@
-import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { CheckCircle, IdCard } from "lucide-react"
 
-import { DefaultLayout } from "@/components/layout/default-layout/DefaultLayout"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { PageBreadcrumb } from "@/components/page-breadcrumb"
 import { Separator } from "@/components/ui/separator"
-import {
-  downloadFileCPF,
-  getFilesCPF,
-  type CpfBulkFile,
-} from "@/lib/api/cpf"
+import { MassSearchSection } from "@/pages/address-search/mass-search-section"
+import { useMassSearchController } from "@/pages/address-search/controller"
 
-import { BulkFilesTable } from "./components/bulk-files-table"
-import { BulkSearchForm } from "./components/bulk-search-form"
-import { SimpleSearchForm } from "./components/simple-search-form"
-
-function saveBlobAsFile(blob: Blob, fileName: string) {
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement("a")
-  link.href = url
-  link.download = fileName
-  link.click()
-  URL.revokeObjectURL(url)
-}
+import { CpfSimpleQuery } from "./components/cpf-simple-query"
 
 export function CPFPage() {
-  const [files, setFiles] = useState<CpfBulkFile[]>([])
-  const [isLoadingFiles, setIsLoadingFiles] = useState(true)
-
-  async function loadFiles() {
-    setIsLoadingFiles(true)
-    try {
-      const data = await getFilesCPF()
-      setFiles(data)
-    } finally {
-      setIsLoadingFiles(false)
-    }
-  }
-
-  useEffect(() => {
-    void loadFiles()
-  }, [])
-
-  async function handleDownload(file: CpfBulkFile) {
-    const { blob, fileName } = await downloadFileCPF(file.id, file.original_name)
-    saveBlobAsFile(blob, fileName)
-  }
-
-  async function handleRemove(id: string) {
-    setFiles((current) => current.filter((file) => file.id !== id))
-  }
+  const {
+    files,
+    isLoadingFiles,
+    isErrorFiles,
+    uploadFile,
+    isUploadingFile,
+    downloadFile,
+    downloadingFileId,
+    removeFile,
+    removingFileId,
+  } = useMassSearchController("cpf")
 
   return (
-    <DefaultLayout>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Busca por CPF</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="container mx-auto space-y-6 p-6">
+      <PageBreadcrumb
+        items={[
+          { label: "Checker", icon: CheckCircle },
+          { label: "Buscar por CPF", icon: IdCard },
+        ]}
+      />
 
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Busca por CPF</h1>
-        <p className="text-sm text-muted-foreground">
-          Consulte um CPF individualmente ou envie uma planilha com vários CPFs.
-        </p>
-      </div>
-
-      <SimpleSearchForm />
+      <CpfSimpleQuery />
 
       <Separator />
 
-      <section className="space-y-4">
-        <div className="space-y-1">
-          <h2 className="text-lg font-semibold tracking-tight">
-            Consulta em massa
-          </h2>
-          <p className="max-w-3xl text-sm text-muted-foreground">
-            Envie uma planilha (.csv ou .xlsx) com vários CPFs para processamento.
-          </p>
-        </div>
-
-        <div className="flex justify-end">
-          <BulkSearchForm onUploadSuccess={loadFiles} />
-        </div>
-
-        <BulkFilesTable
-          files={files}
-          isLoading={isLoadingFiles}
-          onDownload={handleDownload}
-          onRemove={handleRemove}
-        />
-      </section>
-    </DefaultLayout>
+      <MassSearchSection
+        documentType="CPF"
+        viewBasePath="/cpf"
+        files={files}
+        isLoadingFiles={isLoadingFiles}
+        isErrorFiles={isErrorFiles}
+        isUploadingFile={isUploadingFile}
+        downloadingFileId={downloadingFileId}
+        removingFileId={removingFileId}
+        exampleFileName="exemplo-cpfs.csv"
+        exampleHeader="cpf"
+        exampleRows={["11144477735", "52998224725", "12345678909"]}
+        uploadTitle="Nova consulta de CPFs"
+        uploadDescription="Envie um arquivo .csv (separador ;) ou .xlsx com a lista de CPFs para consulta."
+        emptyDescription="Envie um arquivo com a lista de CPFs para acompanhar o processamento dos resultados aqui."
+        onUpload={uploadFile}
+        onDownload={async (fileId, fileName, format) => {
+          await downloadFile({ id: fileId, fileName, format })
+        }}
+        onRemove={async (id) => {
+          await removeFile(String(id))
+        }}
+      />
+    </div>
   )
 }

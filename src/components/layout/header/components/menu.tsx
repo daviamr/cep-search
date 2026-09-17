@@ -1,5 +1,7 @@
+import { useState } from "react"
 import { CreditCard, Landmark, LogOut, Settings, Users } from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
 import { HoverCard } from "@/components/hover-card"
 import { ModeToggle } from "@/components/mode-toggle"
@@ -13,13 +15,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/context/auth-provider"
 
 import { getHeaderMenuDropdownItemClass } from "../header-nav-styles"
 
 export function Menu() {
   const location = useLocation()
-  const isUsersActive =
-    location.pathname === "/users" || location.pathname.startsWith("/users/")
+  const navigate = useNavigate()
+  const { signOut, user } = useAuth()
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const userName = user?.name ?? "Usuário"
+  const userEmail = user?.email ?? ""
+
+  function isActive(href: string) {
+    return location.pathname === href || location.pathname.startsWith(`${href}/`)
+  }
+
+  function handleSignOut() {
+    if (isSigningOut) return
+
+    setIsSigningOut(true)
+    toast.message("Saindo...", { duration: 3000 })
+
+    window.setTimeout(() => {
+      signOut()
+      navigate("/", { replace: true })
+    }, 3000)
+  }
 
   return (
     <DropdownMenu>
@@ -28,10 +50,10 @@ export function Menu() {
           <div className="group flex max-h-11 w-52 cursor-pointer items-center justify-between gap-2 rounded-md p-2.5 transition-colors duration-200 hover:bg-primary/10 data-[state=open]:bg-primary/10">
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-0 leading-tight">
               <p className="truncate text-sm text-headerbar-foreground transition-colors duration-200 group-hover:text-primary group-data-[state=open]:text-primary">
-                username
+                {userName}
               </p>
               <small className="text-xs text-headerbar-muted transition-colors duration-200 group-hover:text-primary/90 group-data-[state=open]:text-primary/90">
-                username@mail.com
+                {userEmail}
               </small>
             </div>
             <Settings
@@ -44,13 +66,13 @@ export function Menu() {
       <DropdownMenuContent>
         <DropdownMenuGroup asChild>
           <div className="p-1">
-            <DropdownMenuLabel className="text-md p-0">username</DropdownMenuLabel>
-            <DropdownMenuLabel className="p-0">username@mail.com</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-md p-0">{userName}</DropdownMenuLabel>
+            <DropdownMenuLabel className="p-0">{userEmail}</DropdownMenuLabel>
           </div>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem asChild className={getHeaderMenuDropdownItemClass(isUsersActive)}>
+          <DropdownMenuItem asChild className={getHeaderMenuDropdownItemClass(isActive("/users"))}>
             <Link to="/users" className="flex items-center gap-2">
               <Users size={16} />
               <span>Usuários</span>
@@ -60,13 +82,20 @@ export function Menu() {
             <Settings size={16} />
             <span>Configurações</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className={getHeaderMenuDropdownItemClass()}>
-            <CreditCard size={16} />
-            <span>Meus créditos</span>
+          <DropdownMenuItem asChild className={getHeaderMenuDropdownItemClass(isActive("/credits"))}>
+            <Link to="/credits" className="flex items-center gap-2">
+              <CreditCard size={16} />
+              <span>Meus créditos</span>
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className={getHeaderMenuDropdownItemClass()}>
-            <Landmark size={16} />
-            <span>Meu extrato</span>
+          <DropdownMenuItem
+            asChild
+            className={getHeaderMenuDropdownItemClass(isActive("/statement"))}
+          >
+            <Link to="/statement" className="flex items-center gap-2">
+              <Landmark size={16} />
+              <span>Meu extrato</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
 
@@ -77,7 +106,12 @@ export function Menu() {
 
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild variant="destructive">
-            <Button variant="destructive" className="flex w-full items-center gap-2">
+            <Button
+              variant="destructive"
+              className="flex w-full items-center gap-2"
+              disabled={isSigningOut}
+              onClick={handleSignOut}
+            >
               <LogOut size={16} />
               <span>Sair</span>
             </Button>

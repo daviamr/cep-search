@@ -1,12 +1,3 @@
-export type EnrichedCepAddress = {
-  id: number
-  cpf: string
-  cep: string
-  logradouro: string
-  numero: string
-  complemento: string
-  bairro: string
-  cidade: string
-  estado: string
-  uf: string
-}
+import type { EnrichedAddress } from "@/pages/address-search/types"
+
+export type EnrichedCepAddress = EnrichedAddress

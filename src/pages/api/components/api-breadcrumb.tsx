@@ -1,36 +1,23 @@
-import { Link } from "react-router-dom"
+import { History, ScrollText, Server } from "lucide-react"
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { PageBreadcrumb } from "@/components/page-breadcrumb"
 
 type ApiBreadcrumbProps = {
-  page: string
+  page: "Histórico" | "Documentação"
 }
+
+const PAGE_ICONS = {
+  Histórico: History,
+  Documentação: ScrollText,
+} as const
 
 export function ApiBreadcrumb({ page }: ApiBreadcrumbProps) {
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link to="/">Dashboard</Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>API</BreadcrumbPage>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>{page}</BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
+    <PageBreadcrumb
+      items={[
+        { label: "API", icon: Server },
+        { label: page, icon: PAGE_ICONS[page] },
+      ]}
+    />
   )
 }

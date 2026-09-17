@@ -92,3 +92,21 @@ export function formatCpf(cpf: string): string {
 
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`
 }
+
+export function formatCnpj(value: string | null | undefined): string {
+  const digits = (value ?? "").replace(/\D/g, "")
+
+  if (!digits) {
+    return "—"
+  }
+
+  if (digits.length === 8) {
+    return digits.replace(/^(\d{2})(\d{3})(\d{3})$/, "$1.$2.$3")
+  }
+
+  if (digits.length !== 14) {
+    return "—"
+  }
+
+  return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5")
+}

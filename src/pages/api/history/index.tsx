@@ -57,7 +57,7 @@ export function ApiHistoryPage() {
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">Histórico</h1>
         <p className="text-sm text-muted-foreground">
-          Registro de requisições realizadas à API do CEP Search.
+          Registro de requisições realizadas à API do Busca Endereço.
         </p>
       </div>
 

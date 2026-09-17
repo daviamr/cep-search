@@ -2,7 +2,7 @@ import { fetchViaCep } from "@/lib/api/viacep"
 import { formatCep, formatCpf } from "@/lib/format"
 
 import type { CpfAddressRecord } from "@/lib/api/cpf"
-import type { EnrichedCpfAddress } from "../types"
+import type { EnrichedAddress } from "@/pages/address-search/types"
 
 function displayValue(value: string | null | undefined) {
   const trimmed = value?.trim()
@@ -11,7 +11,7 @@ function displayValue(value: string | null | undefined) {
 
 export async function enrichCpfAddresses(
   records: CpfAddressRecord[]
-): Promise<EnrichedCpfAddress[]> {
+): Promise<EnrichedAddress[]> {
   const cepCache = new Map<string, Awaited<ReturnType<typeof fetchViaCep>>>()
 
   async function getViaCep(cep: string) {
@@ -27,11 +27,11 @@ export async function enrichCpfAddresses(
   }
 
   return Promise.all(
-    records.map(async (record) => {
+    records.map(async (record, index) => {
       const viaCep = await getViaCep(record.CEP)
 
       return {
-        id: record.ID,
+        id: `${index}-${record.ID}`,
         cpf: displayValue(formatCpf(record.CPF)),
         cep: formatCep(record.CEP),
         logradouro: displayValue(viaCep?.logradouro),
@@ -41,6 +41,7 @@ export async function enrichCpfAddresses(
         cidade: displayValue(viaCep?.localidade),
         estado: displayValue(record.Estado),
         uf: displayValue(record.UF || viaCep?.uf),
+        origem: displayValue(record.Origem),
       }
     })
   )

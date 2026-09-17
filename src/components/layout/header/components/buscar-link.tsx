@@ -1,6 +1,7 @@
 import { Building2, CheckCircle, IdCard, Map } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 
+import { HoverCard as HintHoverCard } from "@/components/hover-card"
 import {
   HoverCard,
   HoverCardContent,
@@ -13,30 +14,33 @@ import {
   getHeaderNavTriggerClass,
 } from "../header-nav-styles"
 
-
 const BUSCAR_ITEMS = [
   {
-    label: "Busca por CNPJ",
+    label: "Buscar por CNPJ",
     href: "/cnpj",
     icon: Building2,
+    disabled: true,
   },
   {
-    label: "Busca por CPF",
+    label: "Buscar por CPF",
     href: "/cpf",
     icon: IdCard,
+    disabled: false,
   },
   {
-    label: "Busca por CEP",
+    label: "Buscar por CEP",
     href: "/cep",
     icon: Map,
+    disabled: false,
   },
 ] as const
 
 export function BuscarHeaderLink() {
   const location = useLocation()
   const isActive = BUSCAR_ITEMS.some(
-    ({ href }) =>
-      location.pathname === href || location.pathname.startsWith(`${href}/`)
+    ({ href, disabled }) =>
+      !disabled &&
+      (location.pathname === href || location.pathname.startsWith(`${href}/`))
   )
   const navClass = getHeaderNavTriggerClass(isActive)
 
@@ -66,17 +70,31 @@ export function BuscarHeaderLink() {
         className="w-60 p-1.5"
       >
         <nav className="flex flex-col gap-0.5">
-          {BUSCAR_ITEMS.map(({ label, href, icon: Icon }) => {
+          {BUSCAR_ITEMS.map(({ label, href, icon: Icon, disabled }) => {
             const itemActive =
-              location.pathname === href ||
-              location.pathname.startsWith(`${href}/`)
+              !disabled &&
+              (location.pathname === href ||
+                location.pathname.startsWith(`${href}/`))
+
+            const className = cn(
+              getHeaderHoverCardItemClass(itemActive),
+              disabled &&
+                "cursor-not-allowed opacity-50 text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
+            )
+
+            if (disabled) {
+              return (
+                <HintHoverCard key={href} content="Em breve" side="right">
+                  <span className={className} aria-disabled="true">
+                    <Icon className="size-4 shrink-0" aria-hidden="true" />
+                    {label}
+                  </span>
+                </HintHoverCard>
+              )
+            }
 
             return (
-              <Link
-                key={href}
-                to={href}
-                className={getHeaderHoverCardItemClass(itemActive)}
-              >
+              <Link key={href} to={href} className={className}>
                 <Icon className="size-4 shrink-0" aria-hidden="true" />
                 {label}
               </Link>

@@ -1,21 +1,24 @@
-import { Bell, Coins, Headset, LayoutDashboard } from "lucide-react"
+import { Bell, Coins, Headset, LayoutDashboard, Loader2 } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { HoverCard } from "@/components/hover-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { useCreditsController } from "@/pages/credits/controller"
+import { moneyFormat } from "@/utils/money.util"
 
 import { BuscarHeaderLink } from "./components/buscar-link"
 import { ApiHeaderLink } from "./components/api-link"
 import { LinksHeader } from "./components/links"
 import { Menu } from "./components/menu"
 
-const CREDIT_BALANCE = 12500
-
 const headerIconButtonClass =
   "text-headerbar-muted transition-colors hover:bg-primary/10 hover:text-primary"
 
 export function Header() {
+  const { credits, isLoadingCredits } = useCreditsController()
+  const balance = Number(credits.credits)
+
   return (
     <header className="fixed z-50 w-full shrink-0 rounded-none border-b border-border bg-headerbar py-1.5 text-headerbar-foreground shadow-md dark:border-white/10">
       <div className="container mx-auto px-4">
@@ -24,7 +27,7 @@ export function Header() {
             to="/"
             className="flex shrink-0 items-center gap-2 font-bold text-headerbar-foreground"
           >
-            <img src="/buscaendereco.png" alt="Logo" className="max-w-56" />
+            <img src="/buscaendereco.png" alt="Busca Endereço" className="max-w-56" />
           </Link>
 
           <nav>
@@ -49,15 +52,20 @@ export function Header() {
             <Badge
               variant="outline"
               className="h-5 shrink-0 gap-1 whitespace-nowrap border-primary/50 bg-primary/15 px-1.5 py-0 text-xs leading-none font-light text-headerbar-foreground"
+              asChild
             >
-              <Coins
-                className="size-3 shrink-0 text-yellow-500"
-                strokeWidth={2}
-                aria-hidden
-              />
-              <span className="tabular-nums">
-                {CREDIT_BALANCE.toLocaleString("pt-BR")} créditos
-              </span>
+              <Link to="/credits" aria-label="Ver créditos">
+                <Coins
+                  className="size-3 shrink-0 text-yellow-500"
+                  strokeWidth={2}
+                  aria-hidden
+                />
+                {isLoadingCredits ? (
+                  <Loader2 className="size-3 animate-spin" aria-hidden />
+                ) : (
+                  <span className="tabular-nums">{moneyFormat(balance)}</span>
+                )}
+              </Link>
             </Badge>
             <Menu />
             <HoverCard

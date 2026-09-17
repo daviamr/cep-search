@@ -1,15 +1,8 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Building2, CheckCircle } from "lucide-react"
 
 import { DefaultLayout } from "@/components/layout/default-layout/DefaultLayout"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { PageBreadcrumb } from "@/components/page-breadcrumb"
 import { Separator } from "@/components/ui/separator"
 
 import { BulkFilesTable } from "./components/bulk-files-table"
@@ -35,19 +28,12 @@ export function CNPJPage() {
 
   return (
     <DefaultLayout>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Busca por CNPJ</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <PageBreadcrumb
+        items={[
+          { label: "Checker", icon: CheckCircle },
+          { label: "Buscar por CNPJ", icon: Building2 },
+        ]}
+      />
 
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">Busca por CNPJ</h1>

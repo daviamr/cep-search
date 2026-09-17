@@ -34,7 +34,7 @@ function mapRowToRecord(
 
   return {
     ID: Number.isFinite(parsedId) ? parsedId : index + 1,
-    cpf,
+    CPF: cpf,
     CEP: cep,
     Numero: getCell(row, ["numero"]),
     Complemento: getCell(row, ["complemento"]),
