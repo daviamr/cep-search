@@ -2,6 +2,7 @@ import { isAxiosError } from "axios"
 
 import { api } from "@/lib/api/axios"
 import {
+  ADDRESS_SEARCH_CEP_INPUT_COLUMNS,
   ADDRESS_SEARCH_CEP_OPTIONAL_INPUT_FIELDS,
   ADDRESS_SEARCH_CEP_OUTPUT_COLUMNS,
   ADDRESS_SEARCH_INPUT_FIELDS,
@@ -66,6 +67,10 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback
 }
 
+function toSpecColumn(column: string) {
+  return column.trim().toLowerCase()
+}
+
 function getFilenameFromContentDisposition(header?: string) {
   if (!header) return undefined
 
@@ -91,25 +96,25 @@ export function buildAddressEnrichmentSpec(
   documentType: AddressSearchType,
   mapping: AddressEnrichmentColumnMapping
 ): AddressEnrichmentSpec {
-  const inputs: AddressEnrichmentSpec["inputs"] = [
-    { field: ADDRESS_SEARCH_INPUT_FIELDS[documentType], column: mapping.document },
-  ]
-
-  if (documentType === "cep" && mapping.numero) {
-    inputs.push({
-      field: ADDRESS_SEARCH_CEP_OPTIONAL_INPUT_FIELDS.numero,
-      column: mapping.numero,
-    })
-
-    if (mapping.complemento) {
-      inputs.push({
-        field: ADDRESS_SEARCH_CEP_OPTIONAL_INPUT_FIELDS.complemento,
-        column: mapping.complemento,
-      })
-    }
-  }
-
   if (documentType === "cep") {
+    const inputs: AddressEnrichmentSpec["inputs"] = [
+      { field: ADDRESS_SEARCH_INPUT_FIELDS.cep, column: ADDRESS_SEARCH_CEP_INPUT_COLUMNS.cep },
+    ]
+
+    if (mapping.numero) {
+      inputs.push({
+        field: ADDRESS_SEARCH_CEP_OPTIONAL_INPUT_FIELDS.numero,
+        column: ADDRESS_SEARCH_CEP_INPUT_COLUMNS.numero,
+      })
+
+      if (mapping.complemento) {
+        inputs.push({
+          field: ADDRESS_SEARCH_CEP_OPTIONAL_INPUT_FIELDS.complemento,
+          column: ADDRESS_SEARCH_CEP_INPUT_COLUMNS.complemento,
+        })
+      }
+    }
+
     return {
       inputs,
       outputs: [
@@ -122,7 +127,12 @@ export function buildAddressEnrichmentSpec(
   }
 
   return {
-    inputs,
+    inputs: [
+      {
+        field: ADDRESS_SEARCH_INPUT_FIELDS.cpf,
+        column: toSpecColumn(mapping.document),
+      },
+    ],
     outputs: [
       { table: "pessoas", columns: ["nome"] },
       {

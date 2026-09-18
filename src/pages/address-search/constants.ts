@@ -15,6 +15,12 @@ export const ADDRESS_SEARCH_CEP_OPTIONAL_INPUT_FIELDS = {
   complemento: "COMPLEMENTO",
 } as const
 
+export const ADDRESS_SEARCH_CEP_INPUT_COLUMNS = {
+  cep: "cep",
+  numero: "numero",
+  complemento: "complemento",
+} as const
+
 export type AddressEnrichmentColumnMapping = {
   document: string
   numero?: string | null

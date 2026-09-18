@@ -1,4 +1,4 @@
-import type { ColumnDef } from "@tanstack/react-table"
+import type { AccessorKeyColumnDef, ColumnDef } from "@tanstack/react-table"
 
 import { createCopyRowActionColumn } from "@/components/simple-query/copy-row-action-column"
 import { TruncatedHoverCell } from "@/components/simple-query/truncated-hover-cell"
@@ -23,7 +23,7 @@ function formatAddressRow(row: EnrichedAddress): string {
   ].join("\n")
 }
 
-const addressDataColumns: ColumnDef<EnrichedAddress>[] = [
+const addressDataColumns: AccessorKeyColumnDef<EnrichedAddress>[] = [
   {
     accessorKey: "cpf",
     meta: { label: "CPF" },
